@@ -1,0 +1,57 @@
+{
+  "method": "weighted_moving_average",
+  "window": 12,
+  "n_periods": 8,
+  "granularity": "weekly",
+  "forecast": [
+    {
+      "date": "2024-01-07",
+      "value": 319.4872,
+      "lower_ci": 239.2782,
+      "upper_ci": 399.6962
+    },
+    {
+      "date": "2024-01-14",
+      "value": 322.1391,
+      "lower_ci": 241.9301,
+      "upper_ci": 402.348
+    },
+    {
+      "date": "2024-01-21",
+      "value": 324.2824,
+      "lower_ci": 244.0734,
+      "upper_ci": 404.4914
+    },
+    {
+      "date": "2024-01-28",
+      "value": 325.8947,
+      "lower_ci": 245.6858,
+      "upper_ci": 406.1037
+    },
+    {
+      "date": "2024-02-04",
+      "value": 326.9438,
+      "lower_ci": 246.7349,
+      "upper_ci": 407.1528
+    },
+    {
+      "date": "2024-02-11",
+      "value": 327.4121,
+      "lower_ci": 247.2031,
+      "upper_ci": 407.621
+    },
+    {
+      "date": "2024-02-18",
+      "value": 327.2864,
+      "lower_ci": 247.0774,
+      "upper_ci": 407.4954
+    },
+    {
+      "date": "2024-02-25",
+      "value": 327.3028,
+      "lower_ci": 247.0938,
+      "upper_ci": 407.5117
+    }
+  ],
+  "summary": "8-period WMA forecast (window=12, granularity=weekly). Last observed: 380.00. First forecast: 319.49 [95% CI: 239.28, 399.70]. Last forecast: 327.30."
+}

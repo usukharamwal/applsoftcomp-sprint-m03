@@ -29,7 +29,7 @@ def detect_granularity(dates):
 def detect_date_col(df):
     for col in df.columns:
         try:
-            parsed = pd.to_datetime(df[col], infer_datetime_format=True, errors="coerce")
+            parsed = pd.to_datetime(df[col], errors="coerce")
             if parsed.notna().sum() / max(len(df), 1) > 0.8:
                 return col
         except Exception:
@@ -39,7 +39,16 @@ def detect_date_col(df):
 
 def detect_qty_col(df, date_col):
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
-    keywords = ["demand", "qty", "quantity", "sales", "volume", "units", "orders", "count"]
+    keywords = [
+        "demand",
+        "qty",
+        "quantity",
+        "sales",
+        "volume",
+        "units",
+        "orders",
+        "count",
+    ]
     for kw in keywords:
         for col in numeric_cols:
             if kw in col.lower() and col != date_col:
@@ -83,15 +92,14 @@ def parse_data(file_path, date_col=None, qty_col=None, output=None):
             )
             sys.exit(1)
 
-    df[date_col] = pd.to_datetime(df[date_col], infer_datetime_format=True, errors="coerce")
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
     df = df.dropna(subset=[date_col]).sort_values(date_col)
 
     granularity = detect_granularity(df[date_col])
     feature_cols = [
         c
         for c in df.columns
-        if c not in (date_col, qty_col)
-        and df[c].dtype.kind in ("f", "i", "O")
+        if c not in (date_col, qty_col) and df[c].dtype.kind in ("f", "i", "O")
     ]
 
     col_stats = {}
@@ -138,8 +146,14 @@ def parse_data(file_path, date_col=None, qty_col=None, output=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Profile demand data from CSV/Excel.")
     parser.add_argument("file", help="Path to CSV or Excel file")
-    parser.add_argument("--date-col", help="Date column name (auto-detected if omitted)")
-    parser.add_argument("--qty-col", help="Quantity/demand column name (auto-detected if omitted)")
-    parser.add_argument("--output", help="Save profile JSON to this file (default: stdout)")
+    parser.add_argument(
+        "--date-col", help="Date column name (auto-detected if omitted)"
+    )
+    parser.add_argument(
+        "--qty-col", help="Quantity/demand column name (auto-detected if omitted)"
+    )
+    parser.add_argument(
+        "--output", help="Save profile JSON to this file (default: stdout)"
+    )
     args = parser.parse_args()
     parse_data(args.file, args.date_col, args.qty_col, args.output)

@@ -18,7 +18,7 @@ def load_series(profile):
         df = pd.read_excel(p)
     else:
         df = pd.read_csv(p)
-    df[date_col] = pd.to_datetime(df[date_col], infer_datetime_format=True, errors="coerce")
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
     df = df.dropna(subset=[date_col]).sort_values(date_col)
     df["qty"] = pd.to_numeric(df[qty_col], errors="coerce").fillna(0)
     df["date"] = df[date_col]
@@ -26,9 +26,13 @@ def load_series(profile):
 
 
 def infer_freq(granularity):
-    return {"daily": "D", "weekly": "W", "monthly": "MS", "quarterly": "QS", "annual": "YS"}.get(
-        granularity, "W"
-    )
+    return {
+        "daily": "D",
+        "weekly": "W",
+        "monthly": "MS",
+        "quarterly": "QS",
+        "annual": "YS",
+    }.get(granularity, "W")
 
 
 def forecast(profile_path, analysis_path=None, n_periods=8, output=None):
@@ -61,9 +65,13 @@ def forecast(profile_path, analysis_path=None, n_periods=8, output=None):
     last_date = df["date"].iloc[-1]
     freq = infer_freq(granularity)
     try:
-        forecast_dates = pd.date_range(start=last_date, periods=n_periods + 1, freq=freq)[1:]
+        forecast_dates = pd.date_range(
+            start=last_date, periods=n_periods + 1, freq=freq
+        )[1:]
     except Exception:
-        forecast_dates = [last_date + pd.Timedelta(weeks=i + 1) for i in range(n_periods)]
+        forecast_dates = [
+            last_date + pd.Timedelta(weeks=i + 1) for i in range(n_periods)
+        ]
 
     z = 1.96  # 95% confidence
     results = {
@@ -84,7 +92,7 @@ def forecast(profile_path, analysis_path=None, n_periods=8, output=None):
             f"{n_periods}-period WMA forecast (window={window}, granularity={granularity}). "
             f"Last observed: {float(qty[-1]):.2f}. "
             f"First forecast: {forecast_values[0]:.2f} "
-            f"[95% CI: {forecast_values[0]-z*hist_std:.2f}, {forecast_values[0]+z*hist_std:.2f}]. "
+            f"[95% CI: {forecast_values[0] - z * hist_std:.2f}, {forecast_values[0] + z * hist_std:.2f}]. "
             f"Last forecast: {forecast_values[-1]:.2f}."
         ),
     }
@@ -98,12 +106,18 @@ def forecast(profile_path, analysis_path=None, n_periods=8, output=None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Forecast demand using weighted moving average.")
+    parser = argparse.ArgumentParser(
+        description="Forecast demand using weighted moving average."
+    )
     parser.add_argument("--profile", required=True, help="Path to data_profile.json")
-    parser.add_argument("--analysis", help="Path to analysis_results.json (optional context)")
+    parser.add_argument(
+        "--analysis", help="Path to analysis_results.json (optional context)"
+    )
     parser.add_argument(
         "--weeks", type=int, default=8, help="Forecast horizon in periods (default: 8)"
     )
-    parser.add_argument("--output", help="Save forecast JSON to this file (default: stdout)")
+    parser.add_argument(
+        "--output", help="Save forecast JSON to this file (default: stdout)"
+    )
     args = parser.parse_args()
     forecast(args.profile, args.analysis, args.weeks, args.output)

@@ -19,7 +19,7 @@ def load_data(profile):
         df = pd.read_excel(p)
     else:
         df = pd.read_csv(p)
-    df[date_col] = pd.to_datetime(df[date_col], infer_datetime_format=True, errors="coerce")
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
     df = df.dropna(subset=[date_col]).sort_values(date_col)
     df["qty"] = pd.to_numeric(df[qty_col], errors="coerce").fillna(0)
     df["date"] = df[date_col]
@@ -58,7 +58,11 @@ def analyze(profile_path, output=None):
             (rolling.iloc[-1] - rolling.iloc[0]) / (abs(rolling.iloc[0]) + 1e-9) * 100
         )
         results["trend"] = {
-            "direction": "increasing" if slope > 0.001 else "decreasing" if slope < -0.001 else "flat",
+            "direction": "increasing"
+            if slope > 0.001
+            else "decreasing"
+            if slope < -0.001
+            else "flat",
             "slope_per_period": round(slope, 4),
             "overall_pct_change": round(pct_change, 2),
             "rolling_window": int(window),
@@ -138,6 +142,8 @@ def analyze(profile_path, output=None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Analyze demand patterns.")
     parser.add_argument("--profile", required=True, help="Path to data_profile.json")
-    parser.add_argument("--output", help="Save analysis JSON to this file (default: stdout)")
+    parser.add_argument(
+        "--output", help="Save analysis JSON to this file (default: stdout)"
+    )
     args = parser.parse_args()
     analyze(args.profile, args.output)

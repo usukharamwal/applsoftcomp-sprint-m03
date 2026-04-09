@@ -1,0 +1,41 @@
+{
+  "file_path": "/workspaces/applsoftcomp-sprint-m03/.agents/skills/demand-analyzer/sample_data/demand_sample.csv",
+  "date_col": "date",
+  "qty_col": "demand",
+  "feature_cols": [
+    "price",
+    "promotion"
+  ],
+  "n_rows": 52,
+  "date_range": {
+    "start": "2023-01-02T00:00:00",
+    "end": "2023-12-25T00:00:00"
+  },
+  "granularity": "weekly",
+  "column_stats": {
+    "demand": {
+      "type": "numeric",
+      "min": 89.0,
+      "max": 380.0,
+      "mean": 216.42307692307693,
+      "std": 61.508279740384694,
+      "missing": 0
+    },
+    "price": {
+      "type": "numeric",
+      "min": 17.99,
+      "max": 19.99,
+      "mean": 19.566923076923075,
+      "std": 0.7097680882266099,
+      "missing": 0
+    },
+    "promotion": {
+      "type": "numeric",
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.28846153846153844,
+      "std": 0.45746695847847574,
+      "missing": 0
+    }
+  }
+}

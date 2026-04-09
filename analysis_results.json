@@ -1,0 +1,27 @@
+{
+  "granularity": "weekly",
+  "n_observations": 52,
+  "trend": {
+    "direction": "increasing",
+    "slope_per_period": 3.1024,
+    "overall_pct_change": 47.18,
+    "rolling_window": 26
+  },
+  "seasonality": {
+    "detected": false,
+    "reason": "Need at least 104 observations for STL; have 52."
+  },
+  "anomalies": [
+    {
+      "date": "2023-12-25T00:00:00",
+      "qty": 380.0,
+      "direction": "spike"
+    }
+  ],
+  "anomaly_bounds": {
+    "lower": 49.125,
+    "upper": 370.125,
+    "iqr": 80.25
+  },
+  "summary": "Data spans 52 weekly observations. Trend is increasing (+47.2% overall). Seasonality: not detected. 1 anomalies found (IQR method)."
+}

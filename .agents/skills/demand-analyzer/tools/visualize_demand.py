@@ -18,6 +18,7 @@ import pandas as pd
 
 # ── Data loading ─────────────────────────────────────────────────────────────
 
+
 def load_data(profile):
     p = Path(profile["file_path"])
     if p.suffix.lower() in (".xlsx", ".xls", ".xlsm"):
@@ -26,7 +27,7 @@ def load_data(profile):
         df = pd.read_csv(p)
     date_col = profile["date_col"]
     qty_col = profile["qty_col"]
-    df[date_col] = pd.to_datetime(df[date_col], infer_datetime_format=True, errors="coerce")
+    df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
     df = df.dropna(subset=[date_col]).sort_values(date_col)
     df["qty"] = pd.to_numeric(df[qty_col], errors="coerce").fillna(0)
     df["date"] = df[date_col]
@@ -44,22 +45,39 @@ def fig_to_b64(fig):
 
 # ── Charts ────────────────────────────────────────────────────────────────────
 
+
 def chart_historical(df, analysis):
     """Line chart with rolling trend overlay and anomaly markers."""
     fig, ax = plt.subplots(figsize=(12, 4))
-    ax.plot(df["date"], df["qty"], color="#2196F3", linewidth=1.4, label="Demand", alpha=0.9)
+    ax.plot(
+        df["date"], df["qty"], color="#2196F3", linewidth=1.4, label="Demand", alpha=0.9
+    )
 
     window = analysis.get("trend", {}).get("rolling_window", 4)
     rolling = df["qty"].rolling(window=window, center=True).mean()
-    ax.plot(df["date"], rolling, color="#FF5722", linewidth=2, linestyle="--",
-            label=f"{window}-period trend")
+    ax.plot(
+        df["date"],
+        rolling,
+        color="#FF5722",
+        linewidth=2,
+        linestyle="--",
+        label=f"{window}-period trend",
+    )
 
     bounds = analysis.get("anomaly_bounds", {})
     anomalies = analysis.get("anomalies", [])
     if bounds and anomalies:
-        ax.axhline(bounds.get("upper"), color="#E53935", linestyle=":", alpha=0.55, linewidth=1)
-        ax.axhline(bounds.get("lower"), color="#7B1FA2", linestyle=":", alpha=0.55, linewidth=1,
-                   label="Anomaly bounds (IQR)")
+        ax.axhline(
+            bounds.get("upper"), color="#E53935", linestyle=":", alpha=0.55, linewidth=1
+        )
+        ax.axhline(
+            bounds.get("lower"),
+            color="#7B1FA2",
+            linestyle=":",
+            alpha=0.55,
+            linewidth=1,
+            label="Anomaly bounds (IQR)",
+        )
         for a in anomalies:
             color = "#E53935" if a["direction"] == "spike" else "#7B1FA2"
             ax.axvline(pd.to_datetime(a["date"]), color=color, alpha=0.35, linewidth=1)
@@ -87,19 +105,40 @@ def chart_forecast(df, forecast_data):
 
     fig, ax = plt.subplots(figsize=(12, 4))
     ax.plot(ctx["date"], ctx["qty"], color="#2196F3", linewidth=1.5, label="Historical")
-    ax.plot(fc_df["date"], fc_df["value"], color="#FF5722", linewidth=2,
-            marker="o", markersize=3, label=f"Forecast (WMA, window={forecast_data.get('window','?')})")
-    ax.fill_between(fc_df["date"], fc_df["lower_ci"], fc_df["upper_ci"],
-                    alpha=0.18, color="#FF5722", label="95% CI")
+    ax.plot(
+        fc_df["date"],
+        fc_df["value"],
+        color="#FF5722",
+        linewidth=2,
+        marker="o",
+        markersize=3,
+        label=f"Forecast (WMA, window={forecast_data.get('window', '?')})",
+    )
+    ax.fill_between(
+        fc_df["date"],
+        fc_df["lower_ci"],
+        fc_df["upper_ci"],
+        alpha=0.18,
+        color="#FF5722",
+        label="95% CI",
+    )
     if len(ctx):
-        ax.plot([ctx["date"].iloc[-1], fc_df["date"].iloc[0]],
-                [ctx["qty"].iloc[-1], fc_df["value"].iloc[0]],
-                color="#FF5722", linestyle="--", linewidth=1, alpha=0.5)
+        ax.plot(
+            [ctx["date"].iloc[-1], fc_df["date"].iloc[0]],
+            [ctx["qty"].iloc[-1], fc_df["value"].iloc[0]],
+            color="#FF5722",
+            linestyle="--",
+            linewidth=1,
+            alpha=0.5,
+        )
 
     n = forecast_data.get("n_periods", len(fc))
     gran = forecast_data.get("granularity", "period")
-    ax.set_title(f"{n}-{gran.capitalize()} Demand Forecast (Weighted Moving Average)",
-                 fontsize=14, fontweight="bold")
+    ax.set_title(
+        f"{n}-{gran.capitalize()} Demand Forecast (Weighted Moving Average)",
+        fontsize=14,
+        fontweight="bold",
+    )
     ax.set_xlabel("Date")
     ax.set_ylabel("Demand")
     ax.legend(fontsize=9)
@@ -117,9 +156,13 @@ def chart_distribution(df):
     ax1.set_xlabel("Demand")
     ax1.set_ylabel("Frequency")
 
-    bp = ax2.boxplot(df["qty"].dropna(), vert=True, patch_artist=True,
-                     boxprops=dict(facecolor="#2196F3", alpha=0.6),
-                     medianprops=dict(color="#FF5722", linewidth=2))
+    bp = ax2.boxplot(
+        df["qty"].dropna(),
+        vert=True,
+        patch_artist=True,
+        boxprops=dict(facecolor="#2196F3", alpha=0.6),
+        medianprops=dict(color="#FF5722", linewidth=2),
+    )
     ax2.set_title("Demand Box Plot", fontsize=13, fontweight="bold")
     ax2.set_ylabel("Demand")
     ax2.set_xticks([])
@@ -129,8 +172,13 @@ def chart_distribution(df):
 
 # ── HTML builder ──────────────────────────────────────────────────────────────
 
+
 def _img(b64):
-    return f"<img src='data:image/png;base64,{b64}' alt='chart'/>" if b64 else "<p><em>Chart unavailable.</em></p>"
+    return (
+        f"<img src='data:image/png;base64,{b64}' alt='chart'/>"
+        if b64
+        else "<p><em>Chart unavailable.</em></p>"
+    )
 
 
 def build_html(charts, profile, analysis, forecast_data):
@@ -151,7 +199,9 @@ def build_html(charts, profile, analysis, forecast_data):
         for f in forecast_data.get("forecast", [])
     )
     feature_html = (
-        "<p><b>Feature columns:</b> " + ", ".join(profile.get("feature_cols", [])) + "</p>"
+        "<p><b>Feature columns:</b> "
+        + ", ".join(profile.get("feature_cols", []))
+        + "</p>"
         if profile.get("feature_cols")
         else ""
     )
@@ -168,7 +218,9 @@ def build_html(charts, profile, analysis, forecast_data):
     seas_text = (
         "Detected — " + seasonality.get("interpretation", "")
         if seasonality.get("detected")
-        else "Not detected (" + seasonality.get("reason", seasonality.get("error", "no clear pattern")) + ")"
+        else "Not detected ("
+        + seasonality.get("reason", seasonality.get("error", "no clear pattern"))
+        + ")"
     )
 
     return f"""<!DOCTYPE html>
@@ -205,12 +257,12 @@ def build_html(charts, profile, analysis, forecast_data):
 <h2>Data Profile</h2>
 <div class="card">
   <div class="grid">
-    <div class="stat"><div class="stat-value">{profile.get('n_rows','?')}</div><div class="stat-label">Observations</div></div>
-    <div class="stat"><div class="stat-value">{profile.get('granularity','?').capitalize()}</div><div class="stat-label">Granularity</div></div>
+    <div class="stat"><div class="stat-value">{profile.get("n_rows", "?")}</div><div class="stat-label">Observations</div></div>
+    <div class="stat"><div class="stat-value">{profile.get("granularity", "?").capitalize()}</div><div class="stat-label">Granularity</div></div>
     <div class="stat"><div class="stat-value">{len(anomalies)}</div><div class="stat-label">Anomalies</div></div>
   </div>
-  <p><b>Date range:</b> {profile.get('date_range',{}).get('start','?')} → {profile.get('date_range',{}).get('end','?')}</p>
-  <p><b>Date column:</b> {profile.get('date_col','?')} &nbsp;|&nbsp; <b>Quantity column:</b> {profile.get('qty_col','?')}</p>
+  <p><b>Date range:</b> {profile.get("date_range", {}).get("start", "?")} → {profile.get("date_range", {}).get("end", "?")}</p>
+  <p><b>Date column:</b> {profile.get("date_col", "?")} &nbsp;|&nbsp; <b>Quantity column:</b> {profile.get("qty_col", "?")}</p>
   {feature_html}
 </div>
 
@@ -221,14 +273,14 @@ def build_html(charts, profile, analysis, forecast_data):
 </div>
 
 <h2>Historical Demand</h2>
-<div class="card">{_img(charts.get('historical'))}</div>
+<div class="card">{_img(charts.get("historical"))}</div>
 
 <h2>Distribution</h2>
-<div class="card">{_img(charts.get('distribution'))}</div>
+<div class="card">{_img(charts.get("distribution"))}</div>
 
 <h2>Forecast</h2>
 <div class="card">
-  {_img(charts.get('forecast'))}
+  {_img(charts.get("forecast"))}
   <h3>Forecast Table</h3>
   <table><thead><tr><th>Date</th><th>Forecast</th><th>Lower 95% CI</th><th>Upper 95% CI</th></tr></thead>
   <tbody>{fc_rows}</tbody></table>
@@ -242,6 +294,7 @@ def build_html(charts, profile, analysis, forecast_data):
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
+
 
 def visualize(profile_path, analysis_path, forecast_path, output="report.html"):
     profile = json.loads(Path(profile_path).read_text())
@@ -261,10 +314,20 @@ def visualize(profile_path, analysis_path, forecast_path, output="report.html"):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Generate HTML demand analysis report.")
+    parser = argparse.ArgumentParser(
+        description="Generate HTML demand analysis report."
+    )
     parser.add_argument("--profile", required=True, help="Path to data_profile.json")
-    parser.add_argument("--analysis", required=True, help="Path to analysis_results.json")
-    parser.add_argument("--forecast", required=True, help="Path to forecast_results.json")
-    parser.add_argument("--output", default="report.html", help="Output HTML file (default: report.html)")
+    parser.add_argument(
+        "--analysis", required=True, help="Path to analysis_results.json"
+    )
+    parser.add_argument(
+        "--forecast", required=True, help="Path to forecast_results.json"
+    )
+    parser.add_argument(
+        "--output",
+        default="report.html",
+        help="Output HTML file (default: report.html)",
+    )
     args = parser.parse_args()
     visualize(args.profile, args.analysis, args.forecast, args.output)
