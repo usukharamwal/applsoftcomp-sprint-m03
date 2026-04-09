@@ -125,7 +125,7 @@ Connect your provider: `/connect` --> **Ollama Cloud** --> enter your API key --
     3. Are the anomalies detected a concern? What could cause them?
 
 ### Step 4: View the report
-Once the pipeline completes, open `report.html` from the VS Code file explorer → right-click → **Open with Live Server** (or download and open in your browser).
+Once the pipeline completes, open `report.html` from the VS Code file explorer --> right-click --> **Open with Live Server** (or download and open in your browser).
 
 The report includes:
 
