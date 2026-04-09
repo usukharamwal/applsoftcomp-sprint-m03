@@ -1,6 +1,6 @@
 # Demand Pattern Analyzer
 
-A multi-agent skill built on top of the OpenCode agent framework that analyzes demand data from CSV/Excel files, detects patterns, forecasts future demand, and produces an interactive HTML report — all through a natural language chat interface.
+A multi-agent skill built on top of the OpenCode agent framework that analyzes demand data from CSV/Excel files, detects patterns, forecasts future demand, and produces an HTML report - all through a natural language chat interface.
 
 ---
 
